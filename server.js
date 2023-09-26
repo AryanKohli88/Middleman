@@ -2,7 +2,7 @@ const express = require('express');
 const { google } = require('googleapis');
 const { OAuth2Client } = require('google-auth-library');
 const axios = require('axios');
-// const multer = require('multer');
+const multer = require('multer');
 
 const app = express();
 const port = 3000; // Choose the port your server will run on
@@ -17,7 +17,7 @@ const oauth2Client = new OAuth2Client({
   clientSecret: process.env.CLIENT_SECRET,
   redirectUri: process.env.REDIRECT_URI,
 });
-console.log("CLIENT_ID is :: ", process.env.CLIENT_ID)
+// console.log("CLIENT_ID is :: ", process.env.CLIENT_ID)
 // Generate the URL for user sign-in
 // ab ye object use karna ha agar authorisation ke liye toh user ko token chahiye,
 // access_type tells ki kis type ka access token chahiyeand scope tells kdhar ke access ke liye token chshiye
@@ -46,10 +46,10 @@ app.get('/login', (req, res) => {
     const channelName = await getChannelName(tokens.access_token);
 
     res.send(`Authentication successful. You can now use the tokens. Channel Name: ${channelName}
-    <form action="/upload-video" method="post" enctype="multipart/form-data">
+    <form action="/upload" method="post" enctype="multipart/form-data">
         <label for="videoFile">Select a video file:</label>
-        <input type="file" name="videoFile" id="videoFile" accept="video/*">
-        <input type="submit" value="Upload Video">
+        <input type="file" name="video">
+        <input type="submit" value="Upload">
       </form>
     `);
     
@@ -58,6 +58,70 @@ app.get('/login', (req, res) => {
     console.error('Error while exchanging the authorization code for tokens:', error);
   }
 });
+
+
+// Create a Multer middleware to handle file uploads.
+const upload = multer({ dest: './uploads' });
+
+
+app.post('/upload', upload.single('video'), async (req, res) => {
+  // Get the video file from the request.
+  const videoFile = req.file;
+
+  // Create a new YouTube video resource.
+  const video = {
+    snippet: {
+      title: 'My Video Title',
+      description: 'My Video Description',
+      tags: ['my-tag1', 'my-tag2'],
+    },
+    status: {
+      privacyStatus: 'private',
+    },
+  };
+
+  // Set the video file part.
+  video.fileDetails = {
+    videoFile,
+  };
+
+  // Upload the video to YouTube.
+  const youtube = require('youtube-api');
+  const OAuth2 = google.auth.OAuth2;
+
+  // Create an OAuth2 client.
+  const client = new OAuth2(
+    process.env.CLIENT_ID,
+    process.env.CLIENT_SECRET,
+    process.env.REDIRECT_URI
+  );
+
+  const token = await client.getAccessToken();
+
+  // Create a YouTube API service.
+  const service = new youtube.YouTube({
+    auth: client,
+  });
+
+  // Upload the video.
+  const response = await service.videos.insert({
+    part: 'snippet,status,fileDetails',
+    resource: video,
+    auth,
+  });
+
+  // Get the video ID.
+  const videoId = response.data.id;
+
+  // Send the video ID back to the client.
+  res.send({ videoId });
+});
+
+// // Create a route to render the upload form.
+// app.get('/', (req, res) => {
+//   res.sendFile('upload.html');
+// });
+
 
 // Function to get the channel name using the access token
 async function getChannelName(accessToken) {
@@ -82,7 +146,14 @@ async function getChannelName(accessToken) {
     }
   }
 
-  app.post('/upload-video', async (req, res) => {
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
+
+
+/*
+
+ app.post('/upload', async (req, res) => {
 
 // Ensure the request is authenticated and contains an access token
 //   const accessToken = req.query.tokens.access_token;
@@ -124,15 +195,18 @@ async function getChannelName(accessToken) {
     //   resource: videoMetadata,
     // });
 
-    console.log(req.query); // returns empty array, => request nhi milra kuchh api ko => error at line 90.
-    res.send('Video uploaded successfully! Video ID: ' + uploadResponse.data.id);
+    console.log("\nRequest is :: \n");
+    console.log(req); // returns empty array, => request nhi milra kuchh api ko => error at line 90.
+    console.log("\nResponse is :: \n");
+    console.log(res.data); // res.data is undefined//
+
+
+    
+    res.send('Video uploaded successfully! Video ID: ');// + uploadResponse.data.id);
   } catch (error) {
     console.error('Error while uploading video:', error);
     res.status(500).send('Video upload failed. Please try again.');
   }
 });
-  
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+*/
