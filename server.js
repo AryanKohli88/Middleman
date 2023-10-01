@@ -3,6 +3,7 @@ const { google } = require('googleapis');
 const { OAuth2Client } = require('google-auth-library');
 const axios = require('axios');
 const multer = require('multer');
+const fs = require('fs')
 
 const app = express();
 const port = 3000; // Choose the port your server will run on
@@ -24,7 +25,7 @@ const oauth2Client = new OAuth2Client({
 app.get('/login', (req, res) => {
   const authUrl = oauth2Client.generateAuthUrl({
     access_type: 'offline', // request a refresh token
-    scope: 'https://www.googleapis.com/auth/youtube', // scope for YouTube access
+    scope: 'https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/userinfo.profile', // scope for YouTube access, that is what all endpoints we will use
   });
 
   res.redirect(authUrl);
@@ -33,7 +34,8 @@ app.get('/login', (req, res) => {
 // Handle the redirect URL
 // abhi agar authenticate ho gaya toh token dekar access lele
 
-  app.get('/oauth-callback', async (req, res) => {
+  app.get('/google/callback', async (req, res) => {
+
   const code = req.query.code;
 
   try {
@@ -46,9 +48,9 @@ app.get('/login', (req, res) => {
     const channelName = await getChannelName(tokens.access_token);
 
     res.send(`Authentication successful. You can now use the tokens. Channel Name: ${channelName}
-    <form action="/upload" method="post" enctype="multipart/form-data">
+    <form action="/upload" method="POST" enctype="multipart/form-data">
         <label for="videoFile">Select a video file:</label>
-        <input type="file" name="video">
+        <input type="file" name="file">
         <input type="submit" value="Upload">
       </form>
     `);
@@ -61,67 +63,69 @@ app.get('/login', (req, res) => {
 
 
 // Create a Multer middleware to handle file uploads.
-const upload = multer({ dest: './uploads' });
+// const upload = multer({ dest: './uploads' });
 
-
-app.post('/upload', upload.single('video'), async (req, res) => {
-  // Get the video file from the request.
-  const videoFile = req.file;
-
-  // Create a new YouTube video resource.
-  const video = {
-    snippet: {
-      title: 'My Video Title',
-      description: 'My Video Description',
-      tags: ['my-tag1', 'my-tag2'],
-    },
-    status: {
-      privacyStatus: 'private',
-    },
-  };
-
-  // Set the video file part.
-  video.fileDetails = {
-    videoFile,
-  };
-
-  // Upload the video to YouTube.
-  const youtube = require('youtube-api');
-  const OAuth2 = google.auth.OAuth2;
-
-  // Create an OAuth2 client.
-  const client = new OAuth2(
-    process.env.CLIENT_ID,
-    process.env.CLIENT_SECRET,
-    process.env.REDIRECT_URI
-  );
-
-  const token = await client.getAccessToken();
-
-  // Create a YouTube API service.
-  const service = new youtube.YouTube({
-    auth: client,
-  });
-
-  // Upload the video.
-  const response = await service.videos.insert({
-    part: 'snippet,status,fileDetails',
-    resource: video,
-    auth,
-  });
-
-  // Get the video ID.
-  const videoId = response.data.id;
-
-  // Send the video ID back to the client.
-  res.send({ videoId });
+var Storage = multer.diskStorage({
+  destination: function(req, file, callback){
+    callback(null, "./videos");
+  },
+  filename: function(req, file, callback){
+    callback(null, file.fieldname + "_" + Date.now() + "_" + file.originalname)
+  },
 });
 
-// // Create a route to render the upload form.
-// app.get('/', (req, res) => {
-//   res.sendFile('upload.html');
-// });
+var upload = multer({
+  storage: Storage,
+}).single("file");
 
+
+app.post('/upload', (req,res) => {
+
+  upload(req,res,function(err){
+    if(err){
+      console.error('Error while exchanging the authorization code for tokens:', err);
+    }
+    console.log(req.file.path)
+    title = 'video title'
+    description = 'video'
+    tags =  ['my-tag1', 'my-tag2']
+
+    const youtube = google.youtube({
+      version: 'v3',
+      auth:oauth2Client
+    })
+
+    youtube.videos.insert(
+    {
+      resource:{
+        snippet: {
+                title: 'My Video Title',
+                description: 'My Video Description',
+                tags: ['my-tag1', 'my-tag2'],
+              },
+        status: {
+                privacyStatus: 'private',
+              },
+      },
+      part:"snippet,status",
+      media:{
+        body:fs.createReadStream(req.file.path)
+        }
+    },
+
+      (err,data) => {
+        if(err){
+          console.error(err);
+          return res.status(500).send('Error uploading the file.');
+        }
+        console.log("upload complete")
+
+        res.render("Success") //, {name,name,pic:pic,success:true})
+      }
+    )
+    
+  })
+})
 
 // Function to get the channel name using the access token
 async function getChannelName(accessToken) {
