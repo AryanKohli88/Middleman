@@ -11,40 +11,31 @@ const redirectUri = 'http://localhost:3000/oauth-callback'; // Replace with your
 
 const dotenv = require("dotenv").config();
 
-// Configure the OAuth client
-// oauth object banaliya idhar
+//test if dotenv is working fine
+console.log("this is client id :: " , process.CLIENT_ID)
+
+
 const oauth2Client = new OAuth2Client({
   clientId: process.env.CLIENT_ID,
   clientSecret: process.env.CLIENT_SECRET,
   redirectUri: process.env.REDIRECT_URI,
 });
-// console.log("CLIENT_ID is :: ", process.env.CLIENT_ID)
-// Generate the URL for user sign-in
-// ab ye object use karna ha agar authorisation ke liye toh user ko token chahiye,
-// access_type tells ki kis type ka access token chahiyeand scope tells kdhar ke access ke liye token chshiye
 app.get('/login', (req, res) => {
   const authUrl = oauth2Client.generateAuthUrl({
     access_type: 'offline', // request a refresh token
-    scope: 'https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/userinfo.profile', // scope for YouTube access, that is what all endpoints we will use
+    scope: 'https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/userinfo.profile', // scope for YouTube access, that is what all endpoints we will use
   });
-
-  res.redirect(authUrl);
+  console.log("got the oauthurl")
+  res.redirect(authUrl); // this redirects to REDIRECT_URL ?
 });
 
-// Handle the redirect URL
-// abhi agar authenticate ho gaya toh token dekar access lele
-
-  app.get('/google/callback', async (req, res) => {
-
+app.get('/google/callback', async (req, res) => {
+  
   const code = req.query.code;
-
   try {
     // Exchange the authorization code for tokens
     const { tokens } = await oauth2Client.getToken(code);
 
-    // Store tokens securely
-    // Use tokens.access_token for making authorized API requests
-    // Use tokens.refresh_token to obtain a new access token when needed
     const channelName = await getChannelName(tokens.access_token);
 
     res.send(`Authentication successful. You can now use the tokens. Channel Name: ${channelName}
@@ -61,10 +52,6 @@ app.get('/login', (req, res) => {
   }
 });
 
-
-// Create a Multer middleware to handle file uploads.
-// const upload = multer({ dest: './uploads' });
-
 var Storage = multer.diskStorage({
   destination: function(req, file, callback){
     callback(null, "./videos");
@@ -79,8 +66,10 @@ var upload = multer({
 }).single("file");
 
 
-app.post('/upload', (req,res) => {
-
+app.post('/upload', async (req,res) => {
+  
+  // const { tokens } = await oauth2Client.getToken(code);
+  
   upload(req,res,function(err){
     if(err){
       console.error('Error while exchanging the authorization code for tokens:', err);
@@ -99,6 +88,7 @@ app.post('/upload', (req,res) => {
     {
       resource:{
         snippet: {
+                // categoryId: "22",
                 title: 'My Video Title',
                 description: 'My Video Description',
                 tags: ['my-tag1', 'my-tag2'],
@@ -129,8 +119,13 @@ app.post('/upload', (req,res) => {
 
 // Function to get the channel name using the access token
 async function getChannelName(accessToken) {
-    try {
+  
+   try {
       // Make an API request to the YouTube Data API to get the channel information
+      oauth2Client.setCredentials({ access_token: accessToken });
+      
+      console.log("Now take the name")
+
       const response = await axios.get('https://www.googleapis.com/youtube/v3/channels', {
         params: {
           part: 'snippet',
@@ -140,14 +135,45 @@ async function getChannelName(accessToken) {
           Authorization: `Bearer ${accessToken}`,
         },
       });
+
   
       // Extract the channel name from the API response
       const channelName = response.data.items[0].snippet.title;
+      console.log("this is the response ", channelName)
       return channelName;
     } catch (error) {
+      console.log(error)
       console.error('Error while getting channel name:', error);
       return 'Channel name not found';
     }
+
+/*
+  try {
+    // const oauth2Client = new google.auth.OAuth2();
+    oauth2Client.setCredentials({ access_token: accessToken });
+
+    const userInfo = await google.oauth2('v2').userinfo.get({ auth: oauth2Client });
+
+    if (userInfo.data.email) {
+      const channelInfo = await youtube.channels.list({
+        auth: oauth2Client,
+        part: 'snippet',
+        mine: true,
+        // forUsername: userInfo.data.email
+      });
+
+      return channelInfo.data.items[0].snippet.title;
+    } else {
+      throw new Error('No email information found.');
+    }
+  } catch (error) {
+    console.error('Error while getting the channel name:', error);
+    throw error;
+  }
+*/
+
+
+
   }
 
 app.listen(port, () => {
