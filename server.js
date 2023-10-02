@@ -12,7 +12,7 @@ const redirectUri = 'http://localhost:3000/oauth-callback'; // Replace with your
 const dotenv = require("dotenv").config();
 
 //test if dotenv is working fine
-console.log("this is client id :: " , process.CLIENT_ID)
+// console.log("this is client id :: " , process.CLIENT_ID)
 
 
 const oauth2Client = new OAuth2Client({
@@ -52,20 +52,123 @@ app.get('/google/callback', async (req, res) => {
   }
 });
 
-var Storage = multer.diskStorage({
-  destination: function(req, file, callback){
-    callback(null, "./videos");
+// Function to get the channel name using the access token
+async function getChannelName(accessToken) {
+  
+   try {
+      // Make an API request to the YouTube Data API to get the channel information
+      // oauth2Client.setCredentials({ access_token: accessToken });
+      
+      console.log("Now take the name")
+
+      const response = await axios.get('https://www.googleapis.com/youtube/v3/channels', {
+        params: {
+          part: 'snippet',
+          mine: true,
+        },
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+  
+      // Extract the channel name from the API response
+      const channelName = response.data.items[0].snippet.title;
+      console.log("this is the response ", channelName)
+      return channelName;
+    } catch (error) {
+      console.log(error)
+      console.error('Error while getting channel name:', error);
+      return 'Channel name not found';
+    }
+
+ }
+
+ // Multer configuration
+const Storage = multer.diskStorage({
+  destination: function (req, file, callback) {
+    callback(null, './videos'); // Adjust the destination folder
   },
-  filename: function(req, file, callback){
-    callback(null, file.fieldname + "_" + Date.now() + "_" + file.originalname)
+  filename: function (req, file, callback) {
+    callback(null, file.fieldname + '_' + Date.now() + '_' + file.originalname);
   },
 });
 
-var upload = multer({
+const upload = multer({
   storage: Storage,
-}).single("file");
+}).single('file');
+
+app.post('/upload', async (req, res) => {
+ 
+  const { tokens } = await oauth2Client.getToken(code);
+  // const channelName = await getChannelName(tokens.access_token)
+
+  upload(req, res, async function (err) {
+    if (err) {
+      console.error('Error while uploading the file:', err);
+      res.status(500).send('Error uploading the file.');
+    } else {
+      console.log("itna to ho gaya")
+      const accessToken = tokens.access_token; // Replace with the current access token
+      const videoPath = req.file.path;
+      const title = 'Your Video Title';
+      const description = 'Your video description';
+      const tags = ['tag1', 'tag2'];
+      try {
+        const videoData = await uploadVideo(accessToken, videoPath, title, description, tags);
+        res.send('Video uploaded successfully! Video ID: ' + videoData.id);
+      } catch (error) {
+        res.status(500).send('Video upload failed. Please try again.');
+      }
+    }
+  });
+});
+
+ async function uploadVideo(accessToken, videoPath, title, description, tags) {
+  try {
+    // Create a YouTube Data API client
+    const youtube = google.youtube({
+      version: 'v3',
+      auth: accessToken,
+    });
+
+    // Define the video metadata
+    const videoMetadata = {
+      snippet: {
+        title: title,
+        description: description,
+        tags: tags,
+      },
+      status: {
+        privacyStatus: 'private', // You can set this to 'public' if needed
+      },
+    };
+
+    // Upload the video
+    const res = await youtube.videos.insert({
+      part: 'snippet,status',
+      media: {
+        mimeType: 'video/*',
+        body: fs.createReadStream(videoPath),
+      },
+      resource: videoMetadata,
+    });
+
+    return res.data;
+  } catch (error) {
+    console.error('Error while uploading video:', error);
+    throw error;
+  }
+}
 
 
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
+
+
+
+/*
 app.post('/upload', async (req,res) => {
   
   // const { tokens } = await oauth2Client.getToken(code);
@@ -116,73 +219,11 @@ app.post('/upload', async (req,res) => {
     
   })
 })
-
-// Function to get the channel name using the access token
-async function getChannelName(accessToken) {
-  
-   try {
-      // Make an API request to the YouTube Data API to get the channel information
-      oauth2Client.setCredentials({ access_token: accessToken });
-      
-      console.log("Now take the name")
-
-      const response = await axios.get('https://www.googleapis.com/youtube/v3/channels', {
-        params: {
-          part: 'snippet',
-          mine: true,
-        },
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-
-  
-      // Extract the channel name from the API response
-      const channelName = response.data.items[0].snippet.title;
-      console.log("this is the response ", channelName)
-      return channelName;
-    } catch (error) {
-      console.log(error)
-      console.error('Error while getting channel name:', error);
-      return 'Channel name not found';
-    }
-
-/*
-  try {
-    // const oauth2Client = new google.auth.OAuth2();
-    oauth2Client.setCredentials({ access_token: accessToken });
-
-    const userInfo = await google.oauth2('v2').userinfo.get({ auth: oauth2Client });
-
-    if (userInfo.data.email) {
-      const channelInfo = await youtube.channels.list({
-        auth: oauth2Client,
-        part: 'snippet',
-        mine: true,
-        // forUsername: userInfo.data.email
-      });
-
-      return channelInfo.data.items[0].snippet.title;
-    } else {
-      throw new Error('No email information found.');
-    }
-  } catch (error) {
-    console.error('Error while getting the channel name:', error);
-    throw error;
-  }
 */
 
 
 
-  }
-
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
-
-
 /*
-
  app.post('/upload', async (req, res) => {
 
 // Ensure the request is authenticated and contains an access token
