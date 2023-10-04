@@ -1,3 +1,7 @@
+// authURL -> has authorization code. (http://localhost:3000/google/callback?code=4%2F0AfJohXnV5VGq3EytlM5-DG-OXFgFwibilUK5oFfHDkKPTjPxfKxJWlVmSJ-vvwR-eCnYcg&scope=profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fyoutube.upload+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fyoutube.readonly+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile)
+// auth code is exchanged for access token and refresh token using oauth2client object.
+// this access token will be used to make request to YT API.
+
 const express = require('express');
 const { google } = require('googleapis');
 const { OAuth2Client } = require('google-auth-library');
@@ -25,7 +29,7 @@ app.get('/login', (req, res) => {
     access_type: 'offline', // request a refresh token
     scope: 'https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/userinfo.profile', // scope for YouTube access, that is what all endpoints we will use
   });
-  console.log("got the oauthurl")
+  console.log("got the oauthurl") 
   res.redirect(authUrl); // this redirects to REDIRECT_URL ?
 });
 
@@ -34,7 +38,8 @@ app.get('/google/callback', async (req, res) => {
   const code = req.query.code;
   try {
     // Exchange the authorization code for tokens
-    const { tokens } = await oauth2Client.getToken(code);
+    const { tokens } = await oauth2Client.getToken(code); // exchange auth code for access token
+    // oauth2Client should also have refresh token
 
     const channelName = await getChannelName(tokens.access_token);
 
@@ -88,9 +93,11 @@ async function getChannelName(accessToken) {
 const Storage = multer.diskStorage({
   destination: function (req, file, callback) {
     callback(null, './videos'); // Adjust the destination folder
+    console.log("done adjusting folder")
   },
   filename: function (req, file, callback) {
     callback(null, file.fieldname + '_' + Date.now() + '_' + file.originalname);
+    console.log("Created a new file")
   },
 });
 
@@ -99,7 +106,7 @@ const upload = multer({
 }).single('file');
 
 app.post('/upload', async (req, res) => {
- 
+  const code = req.query.code;
   const { tokens } = await oauth2Client.getToken(code);
   // const channelName = await getChannelName(tokens.access_token)
 
