@@ -18,7 +18,6 @@ const dotenv = require("dotenv").config();
 //test if dotenv is working fine
 // console.log("this is client id :: " , process.CLIENT_ID)
 
-
 const oauth2Client = new OAuth2Client({
   clientId: process.env.CLIENT_ID,
   clientSecret: process.env.CLIENT_SECRET,
@@ -33,13 +32,16 @@ app.get('/login', (req, res) => {
   res.redirect(authUrl); // this redirects to REDIRECT_URL ?
 });
 
+var code;
+var save_tokens;
+
 app.get('/google/callback', async (req, res) => {
   
-  const code = req.query.code;
+  code = req.query.code;
   try {
     // Exchange the authorization code for tokens
-    const { tokens } = await oauth2Client.getToken(code); // exchange auth code for access token
-    // oauth2Client should also have refresh token
+    var { tokens } = await oauth2Client.getToken(code); // exchange auth code for access token
+    save_tokens = tokens;
 
     const channelName = await getChannelName(tokens.access_token);
 
@@ -63,8 +65,6 @@ async function getChannelName(accessToken) {
    try {
       // Make an API request to the YouTube Data API to get the channel information
       // oauth2Client.setCredentials({ access_token: accessToken });
-      
-      console.log("Now take the name")
 
       const response = await axios.get('https://www.googleapis.com/youtube/v3/channels', {
         params: {
@@ -106,10 +106,8 @@ const upload = multer({
 }).single('file');
 
 app.post('/upload', async (req, res) => {
-  // console.log(res) // PROBLEM
-  // console.log(res.query) // is empty
-  const code = req.query.code;
-  const { tokens } = await oauth2Client.getToken(code);
+
+  const tokens = save_tokens;
   // const channelName = await getChannelName(tokens.access_token)
 
   upload(req, res, async function (err) {
@@ -139,6 +137,9 @@ app.post('/upload', async (req, res) => {
     const youtube = google.youtube({
       version: 'v3',
       auth: accessToken,
+      headers: {
+        'authorization': 'Bearer ' + accessToken,
+      },
     });
 
     // Define the video metadata
