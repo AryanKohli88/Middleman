@@ -8,19 +8,27 @@
 </head>
 <body>
 
-  Authentication successful. You can now use the tokens. Channel Name: <p id="channelName"></p>
+  Authentication successful. Youare signed in as:  <p id="channelName"></p>
   <script>
     const name = channelName;
     const outputelement = document.getElementById("channelName");
     outputelement.textContent = name;
-    </script>
-    <form action="/upload" method="POST" enctype="multipart/form-data">
+  </script>
+  <p> You have given video upload access for <p id="channelName"></p> to: </p> <br>
+  <h4>editor1</h4><br>
+  <h4>editor2</h4><br>
+  <h4>editor3</h4><br>
+    Add more editors: <br>
+  <form action="/upload" method="POST" enctype="multipart/form-data">
     <label for="editor"> Editor's email ID: </label>
     <input type="text" placeholder="Enter text...">
-    <label for="videoFile">Select a video file:</label>
-    <input type="file" name="file">
     <input type="submit" value="Upload">
-      </form>
-    `
+  </form>
+  Add more editors: <br>
+  <form action="/upload" method="POST" enctype="multipart/form-data">
+    <label for="editor"> Editor's email ID: </label>
+    <input type="text" placeholder="Enter text...">
+    <input type="Delete" value="Upload">
+  </form>
 </body>
 </html>
