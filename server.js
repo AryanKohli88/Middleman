@@ -1,4 +1,4 @@
-// authURL -> has authorization code. ( for eg. http://localhost:3000/google/callback?code=4%2F0AfJohXnV5VGq3EytlM5-DG-OXFgFwibilUK5oFfHDkKPTjPxfKxJWlVmSJ-vvwR-eCnYcg&scope=profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fyoutube.upload+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fyoutube.readonly+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile)
+// authURL -> has authorization code. ( for eg. htcallbacktp://localhost:3000/google/callback?code=4%2F0AfJohXnV5VGq3EytlM5-DG-OXFgFwibilUK5oFfHDkKPTjPxfKxJWlVmSJ-vvwR-eCnYcg&scope=profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fyoutube.upload+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fyoutube.readonly+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile)
 // auth code is exchanged for access token and refresh token using oauth2client object.
 // this access token will be used to make request to YT API.
 
@@ -44,14 +44,20 @@ app.get('/google/callback', async (req, res) => {
     save_tokens = tokens;
 
     const channelName = await getChannelName(tokens.access_token);
+    // const __dirname = require('path').dirname(new URL(import.meta.url).pathname);
 
-    res.send(`Authentication successful. You can now use the tokens. Channel Name: ${channelName}
-    <form action="/upload" method="POST" enctype="multipart/form-data">
-        <label for="videoFile">Select a video file:</label>
-        <input type="file" name="file">
-        <input type="submit" value="Upload">
-      </form>
-    `);
+    res.sendFile(__dirname + '\\real\\youtuber.html');
+    // res.send(`Authentication successful. You can now use the tokens. Channel Name: ${channelName}
+    // <form action="/upload" method="POST" enctype="multipart/form-data">
+    // <label for="editor"> Editor's email ID: </label>
+    // <input type="text" placeholder="Enter text...">
+    // <label for="videoFile">Select a video file:</label>
+    // <input type="file" name="file">
+    // <input type="submit" value="Upload">
+    //   </form>
+    // `);
+    // res.redirect(youtuber.html)
+    
     
   } catch (error) {
     res.send('Authentication failed. Please try again.');
