@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Youtuber</title>
+  </head>
+  <body>
+    
+    Authentication successful. Youare signed in as:  <p id="channelName"></p>
+    <script>
+      const name = channelName;
+      const outputelement = document.getElementById("channelName");
+      outputelement.textContent = name;
+    </script>
+    <scrip  src="youtuber.js"></scrip>
+  <button onclick="googleLogin()">
+    Login with google
+  </button>
+  <p> You have given video upload access for <p id="channelName"></p> to: </p> <br>
+  <h4>editor1</h4><br>
+  <h4>editor2</h4><br>
+  <h4>editor3</h4><br>
+    Add more editors: <br>
+  <form action="/upload" method="POST" enctype="multipart/form-data">
+    <label for="editor"> Editor's email ID: </label>
+    <input type="text" placeholder="Enter text...">
+    <input type="submit" value="Upload">
+  </form>
+  Add more editors: <br>
+  <form action="/upload" method="POST" enctype="multipart/form-data">
+    <label for="editor"> Editor's email ID: </label>
+    <input type="text" placeholder="Enter text...">
+    <input type="Delete" value="Upload">
+  </form>
+</body>
+</html>

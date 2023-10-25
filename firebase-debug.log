@@ -1,0 +1,37 @@
+[debug] [2023-10-15T13:05:04.455Z] ----------------------------------------------------------------------
+[debug] [2023-10-15T13:05:04.458Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\aryan\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js serve
+[debug] [2023-10-15T13:05:04.458Z] CLI Version:   12.7.0
+[debug] [2023-10-15T13:05:04.458Z] Platform:      win32
+[debug] [2023-10-15T13:05:04.459Z] Node Version:  v18.18.2
+[debug] [2023-10-15T13:05:04.459Z] Time:          Sun Oct 15 2023 18:35:04 GMT+0530 (India Standard Time)
+[debug] [2023-10-15T13:05:04.460Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2023-10-15T13:05:04.559Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2023-10-15T13:05:04.559Z] > authorizing via signed-in user (aryankohli0805@gmail.com)
+[debug] [2023-10-15T13:05:04.559Z] [iam] checking project middleman-399716 for permissions ["firebase.projects.get"]
+[debug] [2023-10-15T13:05:04.565Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/middleman-399716:testIamPermissions [none]
+[debug] [2023-10-15T13:05:04.565Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/middleman-399716:testIamPermissions x-goog-quota-user=projects/middleman-399716
+[debug] [2023-10-15T13:05:04.565Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/middleman-399716:testIamPermissions {"permissions":["firebase.projects.get"]}
+[debug] [2023-10-15T13:05:06.195Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/middleman-399716:testIamPermissions 200
+[debug] [2023-10-15T13:05:06.195Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/middleman-399716:testIamPermissions {"permissions":["firebase.projects.get"]}
+[debug] [2023-10-15T13:05:06.196Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/middleman-399716 [none]
+[debug] [2023-10-15T13:05:06.804Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/middleman-399716 200
+[debug] [2023-10-15T13:05:06.804Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/middleman-399716 {"projectId":"middleman-399716","projectNumber":"870259924465","displayName":"Middleman","name":"projects/middleman-399716","resources":{"hostingSite":"middleman-399716"},"state":"ACTIVE","etag":"1_b4403bc2-56f0-48de-8f3a-f6d2a8cdf807"}
+[info] 
+[info] === Serving from 'C:\Users\aryan\OneDrive\Documents\github\Middleman'...
+[info] 
+[debug] [2023-10-15T13:05:06.811Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/middleman-399716/sites 
+[debug] [2023-10-15T13:05:08.134Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/middleman-399716/sites 200
+[debug] [2023-10-15T13:05:08.134Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/middleman-399716/sites {"sites":[{"name":"projects/middleman-399716/sites/middleman-399716","defaultUrl":"https://middleman-399716.web.app","type":"DEFAULT_SITE"}]}
+[debug] [2023-10-15T13:05:08.135Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/middleman-399716/webApps/-/config [none]
+[debug] [2023-10-15T13:05:09.156Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/middleman-399716/webApps/-/config 200
+[debug] [2023-10-15T13:05:09.156Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/middleman-399716/webApps/-/config {"projectId":"middleman-399716","storageBucket":"middleman-399716.appspot.com","apiKey":"AIzaSyABiWunYJL7-hzhh8JX04vz_oX074bsGiA","authDomain":"middleman-399716.firebaseapp.com","messagingSenderId":"870259924465"}
+[debug] [2023-10-15T13:05:09.162Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/middleman-399716 [none]
+[debug] [2023-10-15T13:05:09.772Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/middleman-399716 200
+[debug] [2023-10-15T13:05:09.772Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/middleman-399716 {"projectId":"middleman-399716","projectNumber":"870259924465","displayName":"Middleman","name":"projects/middleman-399716","resources":{"hostingSite":"middleman-399716"},"state":"ACTIVE","etag":"1_b4403bc2-56f0-48de-8f3a-f6d2a8cdf807"}
+[info] i  hosting[middleman-399716]: Serving hosting files from: public {"metadata":{"emulator":{"name":"hosting"},"message":"Serving hosting files from: \u001b[1mpublic\u001b[22m"}}
+[info] +  hosting[middleman-399716]: Local server: http://localhost:5000 {"metadata":{"emulator":{"name":"hosting"},"message":"Local server: \u001b[4m\u001b[1mhttp://localhost:5000\u001b[22m\u001b[24m"}}
+[info] i  hosting: ::1 - - [15/Oct/2023:13:05:09 +0000] "GET /youtuber.html HTTP/1.1" 200 - "http://localhost:5000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.46" {"metadata":{"emulator":{"name":"hosting"},"message":"::1 - - [15/Oct/2023:13:05:09 +0000] \"GET /youtuber.html HTTP/1.1\" 200 - \"http://localhost:5000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.46\""}}
+[info] i  hosting: ::1 - - [15/Oct/2023:13:05:15 +0000] "GET / HTTP/1.1" 200 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.46" {"metadata":{"emulator":{"name":"hosting"},"message":"::1 - - [15/Oct/2023:13:05:15 +0000] \"GET / HTTP/1.1\" 200 - \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.46\""}}
+[info] i  hosting: ::1 - - [15/Oct/2023:13:05:15 +0000] "GET /__/firebase/init.js?useEmulator=true HTTP/1.1" 200 - "http://localhost:5000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.46" {"metadata":{"emulator":{"name":"hosting"},"message":"::1 - - [15/Oct/2023:13:05:15 +0000] \"GET /__/firebase/init.js?useEmulator=true HTTP/1.1\" 200 - \"http://localhost:5000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.46\""}}
+[info] i  hosting: ::1 - - [15/Oct/2023:13:05:18 +0000] "GET /youtuber.html HTTP/1.1" 200 - "http://localhost:5000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.46" {"metadata":{"emulator":{"name":"hosting"},"message":"::1 - - [15/Oct/2023:13:05:18 +0000] \"GET /youtuber.html HTTP/1.1\" 200 - \"http://localhost:5000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.46\""}}
